@@ -17,7 +17,7 @@ class BorrowingSerializer(serializers.ModelSerializer):
         )
 
 
-class BorrowingDetailSerializer(serializers.ModelSerializer):
+class BorrowingDetailSerializer(BorrowingSerializer):
     book = BookSerializer(many=False, read_only=True)
 
     class Meta:
@@ -31,3 +31,14 @@ class BorrowingDetailSerializer(serializers.ModelSerializer):
             "user",
         )
         read_only_fields = fields
+
+
+class BorrowingCreateSerializer(BorrowingSerializer):
+    class Meta:
+        model = Borrowing
+        fields = (
+            "id",
+            "book",
+            "borrow_date",
+            "expected_return_date",
+        )
