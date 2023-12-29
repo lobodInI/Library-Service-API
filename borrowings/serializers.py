@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -38,6 +39,7 @@ class BorrowingCreateSerializer(BorrowingSerializer):
     def validate(self, attrs):
         data = super(BorrowingCreateSerializer, self).validate(attrs=attrs)
         Borrowing.validate_book_inventory(attrs["book"], ValidationError)
+
         return data
 
     class Meta:
@@ -48,3 +50,13 @@ class BorrowingCreateSerializer(BorrowingSerializer):
             "borrow_date",
             "expected_return_date",
         )
+
+    def create(self, validated_data):
+        with transaction.atomic():
+            borrowing = Borrowing.objects.create(**validated_data)
+
+            book = validated_data.get("book")
+            book.inventory -= 1
+            book.save()
+
+            return borrowing
