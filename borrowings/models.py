@@ -59,7 +59,8 @@ class Borrowing(models.Model):
             using=None,
             update_fields=None,
     ):
-        self.full_clean()
+        if self.pk is None:
+            self.full_clean()
         return super(Borrowing, self).save(
             force_insert, force_update, using, update_fields
         )
