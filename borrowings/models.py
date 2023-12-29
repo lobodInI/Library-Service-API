@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q, CheckConstraint, F
 
@@ -40,6 +41,28 @@ class Borrowing(models.Model):
                 name="actual_return_between_borrow_and_expected"
             ),
         ]
+
+    @staticmethod
+    def validate_book_inventory(book, error_to_raise):
+        if book.inventory <= 0:
+            raise error_to_raise(
+                {"message": f"All books with name '{book.title}' borrowing."}
+            )
+
+    def clean(self):
+        Borrowing.validate_book_inventory(self.book, ValidationError)
+
+    def save(
+            self,
+            force_insert=False,
+            force_update=False,
+            using=None,
+            update_fields=None,
+    ):
+        self.full_clean()
+        return super(Borrowing, self).save(
+            force_insert, force_update, using, update_fields
+        )
 
     def __str__(self) -> str:
         return f"{self.user} borrowed {self.book.title}"
