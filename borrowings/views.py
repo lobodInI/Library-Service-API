@@ -13,7 +13,7 @@ from borrowings.models import Borrowing
 from borrowings.serializers import (
     BorrowingSerializer,
     BorrowingDetailSerializer,
-    BorrowingCreateSerializer
+    BorrowingCreateSerializer,
 )
 
 
@@ -21,11 +21,11 @@ class BorrowingViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.CreateModelMixin,
-    viewsets.GenericViewSet
+    viewsets.GenericViewSet,
 ):
     queryset = Borrowing.objects.all()
     serializer_class = BorrowingSerializer
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
 
     def get_serializer_class(self) -> Type[Serializer]:
         if self.action in ("retrieve", "return_borrowing"):
@@ -65,11 +65,8 @@ class BorrowingViewSet(
         ],
     )
     def return_borrowing(self, request, pk=None):
-
         borrowing = self.get_object()
-        serializer = self.get_serializer(
-            borrowing, data=request.data
-        )
+        serializer = self.get_serializer(borrowing, data=request.data)
 
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -86,7 +83,8 @@ class BorrowingViewSet(
             OpenApiParameter(
                 "is_active",
                 type=OpenApiTypes.BOOL,
-                description="Filter by actual return date (ex. ?is_active=True)",
+                description="Filter by actual return date "
+                            "(ex. ?is_active=True)",
             ),
         ]
     )
