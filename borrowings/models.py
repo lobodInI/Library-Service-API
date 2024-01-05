@@ -27,18 +27,18 @@ class Borrowing(models.Model):
         constraints = [
             CheckConstraint(
                 check=Q(borrow_date__gte=datetime.now().date()),
-                name="borrow_date_gte_or_equal_today"
+                name="borrow_date_gte_or_equal_today",
             ),
             CheckConstraint(
                 check=Q(expected_return_date__gte=F("borrow_date")),
-                name="expected_return_after_borrow"
+                name="expected_return_after_borrow",
             ),
             CheckConstraint(
                 check=Q(
                     actual_return_date__gte=F("borrow_date"),
-                    actual_return_date__lte=F("expected_return_date")
+                    actual_return_date__lte=F("expected_return_date"),
                 ),
-                name="actual_return_between_borrow_and_expected"
+                name="actual_return_between_borrow_and_expected",
             ),
         ]
 
@@ -53,11 +53,11 @@ class Borrowing(models.Model):
         Borrowing.validate_book_inventory(self.book, ValidationError)
 
     def save(
-            self,
-            force_insert=False,
-            force_update=False,
-            using=None,
-            update_fields=None,
+        self,
+        force_insert=False,
+        force_update=False,
+        using=None,
+        update_fields=None,
     ):
         if self.pk is None:
             self.full_clean()

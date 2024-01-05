@@ -1,6 +1,8 @@
 from typing import Type
 
 from django.db.models import QuerySet
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -11,7 +13,7 @@ from borrowings.models import Borrowing
 from borrowings.serializers import (
     BorrowingSerializer,
     BorrowingDetailSerializer,
-    BorrowingCreateSerializer
+    BorrowingCreateSerializer,
 )
 
 
@@ -19,11 +21,11 @@ class BorrowingViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.CreateModelMixin,
-    viewsets.GenericViewSet
+    viewsets.GenericViewSet,
 ):
     queryset = Borrowing.objects.all()
     serializer_class = BorrowingSerializer
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
 
     def get_serializer_class(self) -> Type[Serializer]:
         if self.action in ("retrieve", "return_borrowing"):
@@ -63,13 +65,28 @@ class BorrowingViewSet(
         ],
     )
     def return_borrowing(self, request, pk=None):
-
         borrowing = self.get_object()
-        serializer = self.get_serializer(
-            borrowing, data=request.data
-        )
+        serializer = self.get_serializer(borrowing, data=request.data)
 
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "user_id",
+                type=OpenApiTypes.INT,
+                description="Filter by user id (ex. ?user_id=1)",
+            ),
+            OpenApiParameter(
+                "is_active",
+                type=OpenApiTypes.BOOL,
+                description="Filter by actual return date "
+                            "(ex. ?is_active=True)",
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)

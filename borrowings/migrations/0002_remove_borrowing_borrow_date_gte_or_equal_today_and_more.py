@@ -6,20 +6,22 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('books', '0001_initial'),
-        ('borrowings', '0001_initial'),
+        ("books", "0001_initial"),
+        ("borrowings", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.RemoveConstraint(
-            model_name='borrowing',
-            name='borrow_date_gte_or_equal_today',
+            model_name="borrowing",
+            name="borrow_date_gte_or_equal_today",
         ),
         migrations.AddConstraint(
-            model_name='borrowing',
-            constraint=models.CheckConstraint(check=models.Q(('borrow_date__gte', datetime.date(2023, 12, 29))), name='borrow_date_gte_or_equal_today'),
+            model_name="borrowing",
+            constraint=models.CheckConstraint(
+                check=models.Q(("borrow_date__gte", datetime.date(2023, 12, 29))),
+                name="borrow_date_gte_or_equal_today",
+            ),
         ),
     ]
