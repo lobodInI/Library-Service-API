@@ -15,6 +15,7 @@ from borrowings.serializers import (
     BorrowingDetailSerializer,
     BorrowingCreateSerializer,
 )
+from borrowings.tasks import send_borrowing_notification
 
 
 class BorrowingViewSet(
@@ -54,7 +55,11 @@ class BorrowingViewSet(
         return queryset
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        borrowing = serializer.save(user=self.request.user)
+        text = (f"New borrowing created: "
+                f"book- {borrowing.book.title}, "
+                f"user-{borrowing.user.email}")
+        send_borrowing_notification(text)
 
     @action(
         methods=["POST"],

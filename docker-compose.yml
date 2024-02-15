@@ -24,3 +24,33 @@ services:
       - "5433:5432"
     env_file:
       - .env
+
+  redis:
+    image: redis:alpine
+
+
+  celery:
+    build:
+      context: .
+    command: "celery -A library_service_api worker --loglevel=info -P eventlet"
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - app
+      - db
+
+
+  celery-beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: "celery -A library_service_api beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+    depends_on:
+      - app
+      - redis
+      - db
+      - celery
+    restart: on-failure
+    env_file:
+      - .env
